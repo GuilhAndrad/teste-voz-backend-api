@@ -1,48 +1,41 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Observers;
 
 use App\Models\Produto;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
-class ProdutoObserver
+final class ProdutoObserver
 {
-    /**
-     * Handle the Produto "created" event.
-     */
     public function created(Produto $produto): void
     {
-        //
+        Log::info('Produto criado', [
+            'id' => $produto->id,
+            'nome' => $produto->nome,
+            'categoria_id' => $produto->categoria_id,
+        ]);
     }
 
-    /**
-     * Handle the Produto "updated" event.
-     */
     public function updated(Produto $produto): void
     {
-        //
+        Log::info('Produto atualizado', [
+            'id' => $produto->id,
+            'alteracoes' => $produto->getChanges(),
+        ]);
+
+        Cache::forget("produtos:{$produto->id}");
     }
 
-    /**
-     * Handle the Produto "deleted" event.
-     */
     public function deleted(Produto $produto): void
     {
-        //
-    }
+        Log::info('Produto deletado', [
+            'id' => $produto->id,
+            'nome' => $produto->nome,
+        ]);
 
-    /**
-     * Handle the Produto "restored" event.
-     */
-    public function restored(Produto $produto): void
-    {
-        //
-    }
-
-    /**
-     * Handle the Produto "force deleted" event.
-     */
-    public function forceDeleted(Produto $produto): void
-    {
-        //
+        Cache::forget("produtos:{$produto->id}");
     }
 }

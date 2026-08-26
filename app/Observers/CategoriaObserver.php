@@ -1,48 +1,40 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Observers;
 
 use App\Models\Categoria;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
-class CategoriaObserver
+final class CategoriaObserver
 {
-    /**
-     * Handle the Categoria "created" event.
-     */
     public function created(Categoria $categoria): void
     {
-        //
+        Log::info('Categoria criada', [
+            'id' => $categoria->id,
+            'nome' => $categoria->nome,
+        ]);
     }
 
-    /**
-     * Handle the Categoria "updated" event.
-     */
     public function updated(Categoria $categoria): void
     {
-        //
+        Log::info('Categoria atualizada', [
+            'id' => $categoria->id,
+            'alteracoes' => $categoria->getChanges(),
+        ]);
+
+        Cache::forget("categorias:{$categoria->id}");
     }
 
-    /**
-     * Handle the Categoria "deleted" event.
-     */
     public function deleted(Categoria $categoria): void
     {
-        //
-    }
+        Log::info('Categoria deletada', [
+            'id' => $categoria->id,
+            'nome' => $categoria->nome,
+        ]);
 
-    /**
-     * Handle the Categoria "restored" event.
-     */
-    public function restored(Categoria $categoria): void
-    {
-        //
-    }
-
-    /**
-     * Handle the Categoria "force deleted" event.
-     */
-    public function forceDeleted(Categoria $categoria): void
-    {
-        //
+        Cache::forget("categorias:{$categoria->id}");
     }
 }
