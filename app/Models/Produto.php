@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Casts\MoneyCast;
-use App\Models\Categoria;
 use App\Observers\ProdutoObserver;
+use Database\Factories\ProdutoFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[ObservedBy(ProdutoObserver::class)]
 class Produto extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProdutoFactory> */
+    /** @use HasFactory<ProdutoFactory> */
     use HasFactory;
 
     /**
@@ -52,7 +52,10 @@ class Produto extends Model
     {
         return $query->when(
             filled($termo),
-            fn (Builder $query): Builder => $query->where('nome', 'like', "%{$termo}%"),
+            fn (Builder $query): Builder => $query->whereRaw(
+                'LOWER(nome) LIKE ?',
+                ['%'.mb_strtolower($termo).'%'],
+            ),
         );
     }
 }

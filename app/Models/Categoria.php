@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Observers\CategoriaObserver;
+use Database\Factories\CategoriaFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[ObservedBy(CategoriaObserver::class)]
 class Categoria extends Model
 {
-    /** @use HasFactory<\Database\Factories\CategoriaFactory> */
+    /** @use HasFactory<CategoriaFactory> */
     use HasFactory;
 
     /**
@@ -35,7 +36,10 @@ class Categoria extends Model
     {
         return $query->when(
             filled($termo),
-            fn(Builder $query): Builder => $query->where('nome', 'like', "%{$termo}%"),
+            fn (Builder $query): Builder => $query->whereRaw(
+                'LOWER(nome) LIKE ?',
+                ['%'.mb_strtolower($termo).'%'],
+            ),
         );
     }
 }
