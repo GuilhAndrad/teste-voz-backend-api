@@ -25,10 +25,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureRateLimiting();
-
-        // The /docs/api routes are only available where this gate allows it.
-        // Relax it (e.g. check a role) to expose the docs in other environments.
-        Gate::define('viewApiDocs', fn (?object $user = null) => $this->app->isLocal());
     }
 
     /**
@@ -38,14 +34,6 @@ class AppServiceProvider extends ServiceProvider
     {
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
-        });
-
-        RateLimiter::for('login', function (Request $request) {
-            return Limit::perMinute(5)->by(Str::lower((string) $request->input('email')).'|'.$request->ip());
-        });
-
-        RateLimiter::for('password', function (Request $request) {
-            return Limit::perMinute(5)->by(Str::lower((string) $request->input('email')).'|'.$request->ip());
         });
     }
 }
