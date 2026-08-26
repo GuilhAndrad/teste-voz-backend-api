@@ -1,50 +1,61 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\Categoria\StoreCategoriaRequest;
+use App\Http\Requests\Api\V1\Categoria\UpdateCategoriaRequest;
+use App\Http\Resources\Api\V1\CategoriaResource;
 use App\Models\Categoria;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Cache;
 
-class CategoriaController extends Controller
+final class CategoriaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request): AnonymousResourceCollection
     {
-        //
+        return CategoriaResource::collection(
+            Categoria::search($request->string('search')->value())
+                ->latest()
+                ->paginate(15)
+        );
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreCategoriaRequest $request): JsonResponse
     {
-        //
+        $categoria = Categoria::create($request->validated());
+
+        return CategoriaResource::make($categoria)
+            ->response()
+            ->setStatusCode(201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Categoria $categoria)
+    public function show(Categoria $categoria): CategoriaResource
     {
-        //
+        $categoria = Cache::remember(
+            "categorias:{$categoria->id}",
+            now()->addMinutes(10),
+            fn (): Categoria => $categoria->load('produtos'),
+        );
+
+        return CategoriaResource::make($categoria);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Categoria $categoria)
+    public function update(UpdateCategoriaRequest $request, Categoria $categoria): CategoriaResource
     {
-        //
+        $categoria->update($request->validated());
+
+        return CategoriaResource::make($categoria);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Categoria $categoria)
+    public function destroy(Categoria $categoria): JsonResponse
     {
-        //
+        $categoria->delete();
+
+        return response()->json(status: 204);
     }
 }
