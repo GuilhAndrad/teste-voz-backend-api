@@ -1,50 +1,62 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\Produto\StoreProdutoRequest;
+use App\Http\Requests\Api\V1\Produto\UpdateProdutoRequest;
+use App\Http\Resources\Api\V1\ProdutoResource;
 use App\Models\Produto;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Cache;
 
-class ProdutoController extends Controller
+final class ProdutoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request): AnonymousResourceCollection
     {
-        //
+        return ProdutoResource::collection(
+            Produto::with('categoria')
+                ->search($request->string('search')->value())
+                ->latest()
+                ->paginate(15)
+        );
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreProdutoRequest $request): JsonResponse
     {
-        //
+        $produto = Produto::create($request->validated());
+
+        return ProdutoResource::make($produto->load('categoria'))
+            ->response()
+            ->setStatusCode(201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Produto $produto)
+    public function show(Produto $produto): ProdutoResource
     {
-        //
+        $produto = Cache::remember(
+            "produtos:{$produto->id}",
+            now()->addMinutes(10),
+            fn (): Produto => $produto->load('categoria'),
+        );
+
+        return ProdutoResource::make($produto);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Produto $produto)
+    public function update(UpdateProdutoRequest $request, Produto $produto): ProdutoResource
     {
-        //
+        $produto->update($request->validated());
+
+        return ProdutoResource::make($produto->load('categoria'));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Produto $produto)
+    public function destroy(Produto $produto): JsonResponse
     {
-        //
+        $produto->delete();
+
+        return response()->json(status: 204);
     }
 }
