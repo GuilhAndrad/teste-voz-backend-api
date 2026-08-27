@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Api\V1\Categoria;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 final class UpdateCategoriaRequest extends FormRequest
 {
@@ -19,7 +20,7 @@ final class UpdateCategoriaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nome' => ['required', 'string', 'max:255'],
+            'nome' => ['required', 'string', 'max:255', Rule::unique('categorias', 'nome')->ignore($this->route('categoria'))],
         ];
     }
 }
