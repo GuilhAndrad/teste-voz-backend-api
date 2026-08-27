@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\V1\CategoriaController;
 use App\Http\Controllers\Api\V1\ProdutoController;

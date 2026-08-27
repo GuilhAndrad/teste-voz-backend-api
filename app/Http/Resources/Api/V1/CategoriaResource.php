@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Api\V1;
 
-use App\Http\Resources\Api\V1\ProdutoResource;
+use App\Models\Categoria;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Models\Categoria */
+/** @mixin Categoria */
 final class CategoriaResource extends JsonResource
 {
     /**
