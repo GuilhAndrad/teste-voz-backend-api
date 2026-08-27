@@ -1,0 +1,154 @@
+{
+  "info": {
+    "name": "Teste VOZ - Backend (Produtos & Categorias)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "host", "value": "http://localhost:8000" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Verificar saúde da API (banco de dados)",
+          "request": { "method": "GET", "url": "{{host}}/api/health-db" }
+        }
+      ]
+    },
+    {
+      "name": "Categorias",
+      "item": [
+        {
+          "name": "Listar categorias",
+          "request": { "method": "GET", "url": "{{host}}/api/v1/categorias" }
+        },
+        {
+          "name": "Buscar categorias por nome",
+          "request": { "method": "GET", "url": "{{host}}/api/v1/categorias?search=Eletro" }
+        },
+        {
+          "name": "Criar categoria",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{host}}/api/v1/categorias",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Eletrônicos\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Criar categoria sem nome (422 - erro de validação)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{host}}/api/v1/categorias",
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Ver categoria",
+          "request": { "method": "GET", "url": "{{host}}/api/v1/categorias/1" }
+        },
+        {
+          "name": "Ver categoria inexistente (404 padronizado)",
+          "request": { "method": "GET", "url": "{{host}}/api/v1/categorias/999" }
+        },
+        {
+          "name": "Atualizar categoria",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{host}}/api/v1/categorias/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Eletrônicos Atualizado\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Deletar categoria",
+          "request": { "method": "DELETE", "url": "{{host}}/api/v1/categorias/1" }
+        }
+      ]
+    },
+    {
+      "name": "Produtos",
+      "item": [
+        {
+          "name": "Listar produtos",
+          "request": { "method": "GET", "url": "{{host}}/api/v1/produtos" }
+        },
+        {
+          "name": "Buscar produtos por nome",
+          "request": { "method": "GET", "url": "{{host}}/api/v1/produtos?search=Notebook" }
+        },
+        {
+          "name": "Criar produto",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{host}}/api/v1/produtos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Notebook\",\n  \"descricao\": \"Notebook 15 polegadas\",\n  \"preco\": 3500.90,\n  \"categoria_id\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Criar produto com categoria inexistente (422 - erro de validação)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{host}}/api/v1/produtos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Notebook\",\n  \"preco\": 3500.90,\n  \"categoria_id\": 999\n}"
+            }
+          }
+        },
+        {
+          "name": "Criar produto com preço negativo (422 - erro de validação)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{host}}/api/v1/produtos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Notebook\",\n  \"preco\": -10,\n  \"categoria_id\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Ver produto",
+          "request": { "method": "GET", "url": "{{host}}/api/v1/produtos/1" }
+        },
+        {
+          "name": "Ver produto inexistente (404 padronizado)",
+          "request": { "method": "GET", "url": "{{host}}/api/v1/produtos/999" }
+        },
+        {
+          "name": "Atualizar produto",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{host}}/api/v1/produtos/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Notebook Pro\",\n  \"descricao\": \"Notebook 15 polegadas, i7\",\n  \"preco\": 4500.00,\n  \"categoria_id\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Deletar produto",
+          "request": { "method": "DELETE", "url": "{{host}}/api/v1/produtos/1" }
+        }
+      ]
+    }
+  ]
+}
