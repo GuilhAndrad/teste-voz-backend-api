@@ -1,0 +1,101 @@
+name: Testes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: teste_voz
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: teste_voz
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pgsql, pdo_pgsql, mbstring, bcmath
+          coverage: none
+
+      - name: Cache do Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Instalar dependências
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Preparar ambiente
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Rodar migrations
+        run: php artisan migrate --force
+
+      - name: Checar estilo de código (Pint)
+        run: ./vendor/bin/pint --test
+
+      - name: Rodar testes (Pest)
+        run: php artisan test
+
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Buildar a imagem
+        run: docker build -t teste-voz-backend:ci .
+
+      - name: Subir docker compose
+        run: docker compose up -d --build
+
+      - name: Aguardar o healthcheck responder
+        run: |
+          for i in $(seq 1 15); do
+            if curl -sf http://localhost:8000/api/health-db; then
+              echo "Healthcheck OK"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Healthcheck não respondeu a tempo"
+          exit 1
+
+      - name: Logs em caso de falha
+        if: failure()
+        run: docker compose logs
+
+      - name: Encerrar containers
+        if: always()
+        run: docker compose down -v
