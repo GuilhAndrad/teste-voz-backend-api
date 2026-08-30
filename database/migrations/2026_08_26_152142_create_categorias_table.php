@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('nome');
             $table->timestamps();
+            $table->index('nome');
+            $table->index('created_at');
         });
     }
 

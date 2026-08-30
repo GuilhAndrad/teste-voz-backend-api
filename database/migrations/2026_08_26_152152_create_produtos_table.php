@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('nome');
             $table->text('descricao')->nullable();
             $table->decimal('preco', 10, 2);
-            $table->foreignId('categoria_id')
-                ->constrained('categorias')
-                ->cascadeOnDelete();
+            $table->foreignId('categoria_id')->constrained('categorias')->cascadeOnDelete();
             $table->timestamps();
+            $table->index('categoria_id');
+            $table->index('created_at');
         });
     }
 
