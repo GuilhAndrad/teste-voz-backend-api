@@ -16,6 +16,7 @@ trait ResolvesIncludes
 
         return in_array($relation, $this->requestedIncludes($request), true);
     }
+
     /**
      * @return list<string>
      */

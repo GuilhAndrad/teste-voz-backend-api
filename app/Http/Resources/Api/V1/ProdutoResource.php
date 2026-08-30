@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Resources\Api\V1;
 
 use App\Http\Controllers\Concerns\ResolvesIncludes;
+use App\Models\Produto;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Models\Produto */
+/** @mixin Produto */
 final class ProdutoResource extends JsonResource
 {
     use ResolvesIncludes;
@@ -26,7 +27,7 @@ final class ProdutoResource extends JsonResource
             'categoria_id' => $this->categoria_id,
             'categoria' => $this->when(
                 $this->wantsInclude($request, 'categoria'),
-                fn() => CategoriaResource::make($this->whenLoaded('categoria')),
+                fn () => CategoriaResource::make($this->whenLoaded('categoria')),
             ),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
